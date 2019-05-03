@@ -1,5 +1,5 @@
 #################################################################
-###      Kunitz-type domain Project (Pfam code: PF00014)	  ###
+###      Kunitz-type domain Project (Pfam code: PF00014       ###
 #################################################################
 
 # The Kunitz-type domains are serine protease inhibitors, as family of the largest and most widely distributed superfamily of protease inhibitors (PIs).
