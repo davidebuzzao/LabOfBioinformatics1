@@ -42,7 +42,7 @@ FLDSUM := PDB_efold5PTI.txt
 POSITIVE:= PF00014.txt
 NEGATIVE := NON_PF00014.txt
 
-all: ROC_PR_CURVES1.plot ROC_PR_CURVES2.plot
+all: ROC_PR_CURVES1 ROC_PR_CURVES2
 
 ####################################################
 ###    Performance computation:		 			 ###
@@ -51,10 +51,10 @@ all: ROC_PR_CURVES1.plot ROC_PR_CURVES2.plot
 ###		  Precision-Recall Curves				 ###
 ####################################################
 
-ROC_PR_CURVES1.plot : $(ROC_CURVE) CVset_BonfCor.tab
+ROC_PR_CURVES1 : $(ROC_CURVE) CVset_BonfCor.tab
 	python3 $^
 
-ROC_PR_CURVES2.plot : $(ROC_CURVE) TESTset_BonfCor.tab
+ROC_PR_CURVES2 : $(ROC_CURVE) TESTset_BonfCor.tab
 	python3 $^
 	
 TESTset_BonfCor.tab : negative_TESTset_BonfCor.hmmsearch positive_TESTset_BonfCor.hmmsearch
