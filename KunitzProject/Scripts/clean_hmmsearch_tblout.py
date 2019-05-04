@@ -6,19 +6,18 @@ def hmmsearch_tblout(file_in, file_out, CLASS_SCORE = 0):
         
         if "positive" in file_in:
             CLASS_SCORE = 1
-
+        
         for line in FILE_IN:    
             if line.startswith('#'): continue
+        
             SEQ_ID = line.split("|")[1]
             E_VAL = str(line.split()[4])
             E_DOM = str(line.split()[7])
             FILE_OUT.write(SEQ_ID + ' ' + E_VAL + ' ' + E_DOM + ' ' + str(CLASS_SCORE) + '\n')
-    
     return()
 
 
 if __name__ == '__main__':
-
     try:
         FILE_IN = sys.argv[1]
         FILE_OUT = sys.argv[2]

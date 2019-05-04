@@ -29,7 +29,7 @@ SORT_CLUST := $(SCRIPTS)sort_cluster.py
 PDB_ATOM_CHAIN := $(SCRIPTS)get_ATOM-chain_PDB.py
 CONF_MAT := $(SCRIPTS)evalConfusion_matrix.py
 HSEARCH_TBLOUT := $(SCRIPTS)clean_hmmsearch_tblout.py
-BONF_CORR := $(SCRIPTS)evalBonferroni_correction.py
+BONF_COR := $(SCRIPTS)evalBonferroni_correction.py
 ROC_CURVE := $(SCRIPTS)evalROC_PRcurves.py
 DSSP := $(SCRIPTS)get_DSSP.py 
 
@@ -39,14 +39,10 @@ SEQ_ID := 99
 THR := 0.000001
 TABRES := tabularResults.csv
 FLDSUM := PDB_efold5PTI.txt
-KUNITZ := PF00014.txt
-NON_KUNITZ := NON_PF00014.txt
+POSITIVE:= PF00014.txt
+NEGATIVE := NON_PF00014.txt
 
-
-ROC1 := ROC_PR_CURVES1.plot
-ROC2 := ROC_PR_CURVES2.plot
-
-all: ROC_PR_CURVES1.plot
+all: ROC_PR_CURVES1.plot ROC_PR_CURVES2.plot
 
 ####################################################
 ###    Performance computation:		 			 ###
@@ -55,20 +51,21 @@ all: ROC_PR_CURVES1.plot
 ###		  Precision-Recall Curves				 ###
 ####################################################
 
-ROC_PR_CURVES1.plot : $(ROC_CURVE) conf_mat.tab
+ROC_PR_CURVES1.plot : $(ROC_CURVE) CVset_BonfCor.tab
 	python3 $^
 
-conf_matTESTset.txt : negative_TESTset_BONF_COR.hmmsearch positive_TESTset_BONF_COR.hmmsearch
-	cat <(sort -gk 3 $<) <(sort -gk 3 positive_TESTset_BONF_COR.hmmsearch) > $@
+ROC_PR_CURVES2.plot : $(ROC_CURVE) TESTset_BonfCor.tab
+	python3 $^
+	
+TESTset_BonfCor.tab : negative_TESTset_BonfCor.hmmsearch positive_TESTset_BonfCor.hmmsearch
+	cat <(sort -gk 3 $<) <(sort -gk 3 positive_TESTset_BonfCor.hmmsearch) > $@
+	python3 $(CONF_MAT) $@ YES > TESTset_BonfCor.summary
+	python3 $(CONF_MAT) $@ NO $(THR)
 
-conf_mat.tab : $(CONF_MAT) conf_matCVset.tab
-	python3 $^ NO $(THR)
-
-conf_matCVset.txt : $(CONF_MAT) conf_matCVset.tab
-	python3 $^ YES > $@
-
-conf_matCVset.tab : negative_CVset_BONF_COR.hmmsearch positive_CVset_BONF_COR.hmmsearch
-	cat <(sort -gk 3 $<) <(sort -gk 3 positive_CVset_BONF_COR.hmmsearch) > $@
+CVset_BonfCor.tab : negative_CVset_BonfCor.hmmsearch positive_CVset_BonfCor.hmmsearch
+	cat <(sort -gk 3 $<) <(sort -gk 3 positive_CVset_BonfCor.hmmsearch) > $@
+	python3 $(CONF_MAT) $@ YES > CVset_BonfCor.summary
+	python3 $(CONF_MAT) $@ NO $(THR)
 
 #########################
 ### HMMSEARCH section ###
@@ -76,19 +73,19 @@ conf_matCVset.tab : negative_CVset_BONF_COR.hmmsearch positive_CVset_BONF_COR.hm
 
 ### Reinclusion of excluded hits from Hmmsearch output.
 ### Counteracting the problem of multiple comparisons applying the Bonferroni Correction.
-negative_TESTset_BONF_COR.hmmsearch : $(BONF_CORR) negative_TESTset.clean.hmmsearch negative_exclTESTset.list negative_TESTset.list
+negative_TESTset_BonfCor.hmmsearch : $(BONF_COR) negative_TESTset.clean.hmmsearch negative_exclTESTset.list negative_TESTset.list
 	cat <(python3 $< negative_TESTset.clean.hmmsearch $$(cat negative_TESTset.list | wc -l | bc)) \
 	 	<(awk '{print $$0, "1.0 1.0 0"}' negative_exclTESTset.list) > $@
 
-negative_CVset_BONF_COR.hmmsearch : $(BONF_CORR) negative_CVset.clean.hmmsearch negative_exclCVset.list negative_CVset.list
+negative_CVset_BonfCor.hmmsearch : $(BONF_COR) negative_CVset.clean.hmmsearch negative_exclCVset.list negative_CVset.list
 	cat <(python3 $< negative_CVset.clean.hmmsearch $$(cat negative_CVset.list | wc -l | bc)) \
-	 	<(awk '{print $$0, "1p.0 1.0 0"}' negative_exclCVset.list) > $@
+	 	<(awk '{print $$0, "1.0 1.0 0"}' negative_exclCVset.list) > $@
 
-positive_TESTset_BONF_COR.hmmsearch : $(BONF_CORR) positive_TESTset.clean.hmmsearch positive_exclTESTset.list positive_TESTset.list
+positive_TESTset_BonfCor.hmmsearch : $(BONF_COR) positive_TESTset.clean.hmmsearch positive_exclTESTset.list positive_TESTset.list
 	cat <(python3 $< positive_TESTset.clean.hmmsearch $$(cat positive_TESTset.list | wc -l | bc)) \
 	 	<(awk '{print $$0, "1.0 1.0 1"}' positive_exclTESTset.list) > $@
 
-positive_CVset_BONF_COR.hmmsearch : $(BONF_CORR) positive_CVset.clean.hmmsearch positive_exclCVset.list positive_CVset.list
+positive_CVset_BonfCor.hmmsearch : $(BONF_COR) positive_CVset.clean.hmmsearch positive_exclCVset.list positive_CVset.list
 	cat <(python3 $< positive_CVset.clean.hmmsearch $$(cat positive_CVset.list | wc -l | bc)) \
 	 	<(awk '{print $$0, "1.0 1.0 1"}' positive_exclCVset.list) > $@
 
@@ -240,8 +237,9 @@ PDB_search.tmp.list: $(TABRES)
 .PHONY: all clean cleanall
 
 clean:
-	rm -f *.list *.sorted *fasta* c[0-9][0-9]_s[0-9][0-9]_* *.rms_rot *.dtout *.blast
+	rm -f *.list *.sorted *fasta* c[0-9][0-9]_s[0-9][0-9]_* *.rms_rot *.dtout *.blast *.phr *.pin *.psq rm -f PDB_files/* *.ok
 
 cleanall: 
-	rm -f *.list *.fasta *.afasta *.clust *.sorted *.hmm *.hmmsearch c[0-9][0-9]_i[0-9][0-9]_* *.rms_rot *.dtout *.tab *.blast
+	rm -f *.list *.fasta *.afasta *.clust *.sorted *.hmm *.hmmsearch c[0-9][0-9]_i[0-9][0-9]_* *.rms_rot *.dtout *.tab \
+	\ *.blast *.phr *.pin *.psq *.pdf *.ok *.summary
 	rm -f PDB_files/*

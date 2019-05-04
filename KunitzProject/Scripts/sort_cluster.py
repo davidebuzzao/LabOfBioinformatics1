@@ -21,7 +21,6 @@ if __name__ == '__main__':
     try:
         FILE_IN1 = open(sys.argv[1], 'r')
         FILE_IN2 = open(sys.argv[2], 'r')
-        FILE_OUT = open(sys.argv[3], 'w')
     except:
         print('Program Usage: text.py <PDB_ID+RESOLUTION> <BLASTCLUST_FILE> <OUTPUT_FILE>')
         raise SystemExit

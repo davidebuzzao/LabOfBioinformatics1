@@ -44,7 +44,10 @@ def ROC_curve(filename, score_position, class_position):
         
         ## Show OR save the figure
         #plt.show()
-        plt.savefig('ROC_curve.pdf', box_inches='tight')
+        if 'CVset' in filename:
+            plt.savefig('CVset_ROCcurve.pdf', box_inches='tight')
+        else:
+            plt.savefig('TESTset_ROCcurve.pdf', box_inches='tight')
 
 def PR_curve(filename, score_position, class_position):
    
@@ -80,7 +83,10 @@ def PR_curve(filename, score_position, class_position):
         
         ## Show OR save the figure
         #plt.show()
-        plt.savefig('PrecisionRecall_curve.pdf', box_inches='tight')
+        if 'CVset' in filename:
+            plt.savefig('CVset_PRcurve.pdf', box_inches='tight')
+        else:
+            plt.savefig('TESTset_PRcurve.pdf', box_inches='tight')
 
 if __name__ == '__main__':
     try:
