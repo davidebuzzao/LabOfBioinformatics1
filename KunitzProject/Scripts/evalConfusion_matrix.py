@@ -31,7 +31,7 @@ def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion matrix'
     ax.set_xlabel('Predicted labels'); ax.set_ylabel('True labels') 
     ax.set_title(title); 
     ax.xaxis.set_ticklabels(['Non Kunitz', 'Kunitz'])
-    ax.yaxis.set_ticklabels(['Kunitz', 'Non Kunitz'])
+    ax.yaxis.set_ticklabels(['Non Kunitz', 'Kunitz'])
  
 
 if __name__ == '__main__':

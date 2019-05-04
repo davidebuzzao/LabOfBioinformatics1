@@ -36,13 +36,14 @@ DSSP := $(SCRIPTS)get_DSSP.py
 # User-dependent variables 
 COVERAGE := 95
 SEQ_ID := 99
-THR := 0.000001
+THR1 := 0.00000001
+THR2 := 0.000001
 TABRES := tabularResults.csv
 FLDSUM := PDB_efold5PTI.txt
 POSITIVE:= PF00014.txt
 NEGATIVE := NON_PF00014.txt
 
-all: ROC_PR_CURVES1 ROC_PR_CURVES2
+all: CVset.matrix TESTset.matrix CVset_ROC_PRcurves TESTset_ROC_PRcurves
 
 ####################################################
 ###    Performance computation:		 			 ###
@@ -51,21 +52,25 @@ all: ROC_PR_CURVES1 ROC_PR_CURVES2
 ###		  Precision-Recall Curves				 ###
 ####################################################
 
-ROC_PR_CURVES1 : $(ROC_CURVE) CVset_BonfCor.tab
+TESTset_ROC_PRcurves : $(ROC_CURVE) CVset_BonfCor.tab
 	python3 $^
 
-ROC_PR_CURVES2 : $(ROC_CURVE) TESTset_BonfCor.tab
-	python3 $^
+CVset_ROC_PRcurves : $(ROC_CURVE) CVset_BonfCor.tab
+	python3 $^ 
+
+CVset.matrix : $(CONF_MAT) CVset_BonfCor.tab
+	python3 $^ NO $(THR2)
 	
+TESTset.matrix : $(CONF_MAT) TESTset_BonfCor.tab
+	python3 $^ NO $(THR1)
+
 TESTset_BonfCor.tab : negative_TESTset_BonfCor.hmmsearch positive_TESTset_BonfCor.hmmsearch
 	cat <(sort -gk 3 $<) <(sort -gk 3 positive_TESTset_BonfCor.hmmsearch) > $@
 	python3 $(CONF_MAT) $@ YES > TESTset_BonfCor.summary
-	python3 $(CONF_MAT) $@ NO $(THR)
 
 CVset_BonfCor.tab : negative_CVset_BonfCor.hmmsearch positive_CVset_BonfCor.hmmsearch
 	cat <(sort -gk 3 $<) <(sort -gk 3 positive_CVset_BonfCor.hmmsearch) > $@
 	python3 $(CONF_MAT) $@ YES > CVset_BonfCor.summary
-	python3 $(CONF_MAT) $@ NO $(THR)
 
 #########################
 ### HMMSEARCH section ###
