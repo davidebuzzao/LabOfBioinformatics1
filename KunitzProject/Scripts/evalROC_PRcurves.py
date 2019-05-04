@@ -42,8 +42,7 @@ def ROC_curve(filename, score_position, class_position):
         plt.xlim([0.0, 1.0])
         plt.title('Receiver Operating Characteristic curve : ROC={0:0.2f}'.format(ROC_AUC_SCORE))
         
-        ## Show OR save the figure
-        #plt.show()
+        ## Save the figure
         if 'CVset' in filename:
             plt.savefig('CVset_ROCcurve.pdf', box_inches='tight')
         else:
@@ -81,8 +80,7 @@ def PR_curve(filename, score_position, class_position):
         plt.xlim([0.0, 1.0])
         plt.title('2-class Precision-Recall curve: AP={0:0.2f}'.format(average_precision))
         
-        ## Show OR save the figure
-        #plt.show()
+        ## Save the figure
         if 'CVset' in filename:
             plt.savefig('CVset_PRcurve.pdf', box_inches='tight')
         else:

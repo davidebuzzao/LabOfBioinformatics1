@@ -99,8 +99,6 @@ if __name__ == '__main__':
                     ### Plot confusion matrix ###
                     plt.figure()
                     PLOT = plot_confusion_matrix(CNF_MATRIX, classes=['NON_KUNITZ','KUNITZ'])
-                    #plt.show(PLOT)
-                    #plt.savefig('Confusion_matrix.pdf', box_inches='tight')
                    
         else:
             with open(filename, 'rt') as FILE_IN:
@@ -127,7 +125,7 @@ if __name__ == '__main__':
             ### Plot confusion matrix ###
             plt.figure()
             PLOT = plot_confusion_matrix(CNF_MATRIX, classes=['NON_KUNITZ','KUNITZ'])
-            #plt.show(PLOT)
+            
             if 'CVset' in filename:
                 plt.savefig('CVset_ConfMat.pdf', box_inches='tight')
             else:
