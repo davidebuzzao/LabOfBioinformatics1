@@ -1,14 +1,14 @@
 #################################################################
-###      Kunitz-type domain Project (Pfam code: PF00014       ###
+###      Kunitz-type domain Project (Pfam code: PF00014)      ###
 #################################################################
 
 # The Kunitz-type domains are serine protease inhibitors, as family of the largest and most widely distributed superfamily of protease inhibitors (PIs).
 # They are stable as standalone peptides, able to recognise specific protein structures, and also work as competitive PIs in their free form. 
 # These properties have led to attempt at developing biopharmaceutical drugs in the last years. Building a sequence-profile-based HMM for predicting 
 # and discriminating new unstudied Kunitz-type domains has been the main aim of this work. 
-# The user needs to care just of the preparation of a csv table of the search results of suitable structures from RCSB PDB, and the summary of a PDBeFold 
-# search with a selected template structure (5PTI). Positive and negative datasets are produced starting from gzipped multi-fasta that can be downloaded 
-# from the UniProtKB. Also necessary are the PDB seqres txt file and the complete SwissProt database, uncompressed.
+# The user needs to care just of the preparation of a csv table of the search results of suitable structures from RCSB PDB (release of Tuesday, Apr 30 2019), 
+# and the summary of a PDBeFold search with a selected template structure (5PTI). Positive and negative datasets are produced starting from unzipped multi-fasta 
+# that can be downloaded from the UniProtKB (release 2019_03). Also necessary are the PDB seqres txt file and the complete SwissProt database, uncompressed.
 
 SHELL := /bin/bash
 
@@ -46,10 +46,10 @@ NEGATIVE := NON_PF00014.txt
 all: CVset.matrix TESTset.matrix CVset_ROC_PRcurves TESTset_ROC_PRcurves
 
 ####################################################
-###    Performance computation:		 			 ###
-###		- Confusion Matrix						 ###
-###		- Receiving Operating Characteristic and ###
-###		  Precision-Recall Curves				 ###
+###    Performance computation:		 	 ###
+###	- Confusion Matrix			 ###
+###	- Receiving Operating Characteristic and ###
+###	  Precision-Recall Curves		 ###
 ####################################################
 
 TESTset_ROC_PRcurves : $(ROC_CURVE) CVset_BonfCor.tab
@@ -125,7 +125,7 @@ negative_TESTset.clean.hmmsearch : MSA_MUSTANG_c$(COVERAGE)_i$(SEQ_ID).hmm negat
 	python3 $(HSEARCH_TBLOUT) negative_TESTset.hmmsearch $@ > /dev/null
 
 ##############################################
-###  		 	2-FOLD CV test		       ###
+###  		2-FOLD CV test		   ###
 ###  Preparation POSITIVE and NEGATIVE set ###
 ###     Preparation training and Test set  ###
 ##############################################
@@ -159,7 +159,6 @@ negative_set.list : $(NON_KUNITZ)
 
 positive_set.list : remove_blast.list $(KUNITZ) 
 	comm -23 <(sort $(KUNITZ)) <(sort $<) > $@
-
 
 remove_blast.list : PDB_c$(COVERAGE)_i$(SEQ_ID)_BEST_RES.blast
 	awk '{if ($$3==100) print $$0}' $^| awk -F "|" '{print $$2}' | sort -u > $@
@@ -200,7 +199,7 @@ cleaning_PDB : $(PDB_ATOM_CHAIN) PDB_c$(COVERAGE)_i$(SEQ_ID)_BEST_RES.list $(WD2
 		wget -nv -nc -P PDB_files/ https://files.rcsb.org/download/'{}'.pdb
 
 #####################
-###	  PDB-efold   ###
+###   PDB-efold   ###
 #####################
 
 ## Building the HMM starting from a MSA retrieved in fasta format with a remote launched PDBefold MSA
@@ -232,10 +231,13 @@ PDB_search.list: PDB_search.tmp.list
 PDB_efold5PTI.list: $(FLDSUM)
 	tail -n +6 $^ | awk '{print $$NF}' | sed 's/:/_/g' | sort -k 1 > $@ 
 
-# Pfam Accession Number PF00014
-# and Resolution is between 0.0 and 3.0 Å
-# and Sequence Length is between 40 and 80
-# and Protein Wild Type
+##############################################################################
+##	Initial query to PDB archive (release of Tuesday, Apr 30 2019)	    ##
+##		Pfam Accession Number PF00014				    ##
+## 		and Resolution is between 0.0 and 3.0 Å			    ##
+##		and Sequence Length is between 40 and 80		    ##
+## 		and Protein Wild Type					    ##
+##############################################################################
 PDB_search.tmp.list: $(TABRES)
 	sed 's/, NEUTRON DIFFRACTION//g' $^ | cut -d "," -f 1,2,4,6 | sed 's/"//g; s/,/ /g; /^$$/d' | sort -nk 3 | tail -n +3 > $@ 
 
