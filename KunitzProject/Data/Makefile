@@ -46,13 +46,13 @@ NEGATIVE := NON_PF00014.txt
 all: CVset.matrix TESTset.matrix CVset_ROC_PRcurves TESTset_ROC_PRcurves
 
 ####################################################
-###    Performance computation:		 	 ###
-###	- Confusion Matrix			 ###
-###	- Receiving Operating Characteristic and ###
-###	  Precision-Recall Curves		 ###
+###    Performance computation:		 			 ###
+###		- Confusion Matrix		 				 ###
+###		- Receiving Operating Characteristic and ###
+###	  		Precision-Recall Curves		 		 ###
 ####################################################
 
-TESTset_ROC_PRcurves : $(ROC_CURVE) CVset_BonfCor.tab
+TESTset_ROC_PRcurves : $(ROC_CURVE) TESTset_BonfCor.tab
 	python3 $^
 
 CVset_ROC_PRcurves : $(ROC_CURVE) CVset_BonfCor.tab
@@ -125,7 +125,7 @@ negative_TESTset.clean.hmmsearch : MSA_MUSTANG_c$(COVERAGE)_i$(SEQ_ID).hmm negat
 	python3 $(HSEARCH_TBLOUT) negative_TESTset.hmmsearch $@ > /dev/null
 
 ##############################################
-###  		2-FOLD CV test		   ###
+###  		2-FOLD CV test		  		   ###
 ###  Preparation POSITIVE and NEGATIVE set ###
 ###     Preparation training and Test set  ###
 ##############################################
@@ -232,11 +232,11 @@ PDB_efold5PTI.list: $(FLDSUM)
 	tail -n +6 $^ | awk '{print $$NF}' | sed 's/:/_/g' | sort -k 1 > $@ 
 
 ##############################################################################
-##	Initial query to PDB archive (release of Tuesday, Apr 30 2019)	    ##
-##		Pfam Accession Number PF00014				    ##
-## 		and Resolution is between 0.0 and 3.0 Å			    ##
-##		and Sequence Length is between 40 and 80		    ##
-## 		and Protein Wild Type					    ##
+##	Initial query to PDB archive (release of Tuesday, Apr 30 2019)	    	##
+##		Pfam Accession Number PF00014										##
+## 		and Resolution is between 0.0 and 3.0 Å			    				##
+##		and Sequence Length is between 40 and 80		    				##
+## 		and Protein Wild Type					    						##
 ##############################################################################
 PDB_search.tmp.list: $(TABRES)
 	sed 's/, NEUTRON DIFFRACTION//g' $^ | cut -d "," -f 1,2,4,6 | sed 's/"//g; s/,/ /g; /^$$/d' | sort -nk 3 | tail -n +3 > $@ 
